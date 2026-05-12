@@ -1,0 +1,12 @@
+SAR REAL DATA RESULTS
+============================================================
+
+XAUUSD:
+  Profit: $617374 | Trades: 1208 | WR: 40.6% | PF: 3.10 | Sharpe: 2.37 | DD: 6.9%
+  Walk Forward: ROBUST
+  Config: dist=VOLx3.5, trail=VOLx3.0, filter=EMA(>20), session=LONDON_NY, cool=2
+
+EURUSD:
+  Profit: $4424 | Trades: 58 | WR: 39.7% | PF: 3.13 | Sharpe: 2.65 | DD: 3.3%
+  Walk Forward: ROBUST
+  Config: dist=ATRx3.5, trail=VOLx3.0, filter=EMA(>20), session=LONDON_NY, cool=2
