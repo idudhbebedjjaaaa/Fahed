@@ -3,7 +3,7 @@
   --dim:#0E6870; --wood:#6F5240; --board:#B38B6A; --boardedge:#5B4130; --adj:#E3D6C8;
   --inside:#EDE7DF; --niche:#DADDD8; --machine:#FFFFFF; --glass:#C9D6DC; --kit:#6B7378;
   --spacer:#D9C3AE; --hdf:#E9E6E0; --steel:#8E989E; --wall:#D2D5CF; --onwood:#FBF3E8;
-  --chip:#1C2226; --chipink:#F2F3F0;
+  --chip:#1C2226; --chipink:#F2F3F0; --void:#2B231D;
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){
@@ -12,7 +12,7 @@
     --dim:#5FC0C6; --wood:#C99A72; --board:#7C5B43; --boardedge:#D9B593; --adj:#4A3D33;
     --inside:#24282B; --niche:#2B3134; --machine:#D8DCDD; --glass:#7F95A0; --kit:#9AA3A7;
     --spacer:#5E4938; --hdf:#33383B; --steel:#8E989E; --wall:#2E3437; --onwood:#FBF3E8;
-    --chip:#E4E7E5; --chipink:#131618;
+    --chip:#E4E7E5; --chipink:#131618; --void:#0A0C0D;
     color-scheme:dark;
   }
 }
@@ -21,7 +21,7 @@
   --dim:#5FC0C6; --wood:#C99A72; --board:#7C5B43; --boardedge:#D9B593; --adj:#4A3D33;
   --inside:#24282B; --niche:#2B3134; --machine:#D8DCDD; --glass:#7F95A0; --kit:#9AA3A7;
   --spacer:#5E4938; --hdf:#33383B; --steel:#8E989E; --wall:#2E3437; --onwood:#FBF3E8;
-  --chip:#E4E7E5; --chipink:#131618;
+  --chip:#E4E7E5; --chipink:#131618; --void:#0A0C0D;
   color-scheme:dark;
 }
 body{background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans Arabic","Noto Sans Arabic","DejaVu Sans",Tahoma,sans-serif;font-size:15px;line-height:1.7}
@@ -91,6 +91,7 @@ svg rect,svg line,svg circle,svg polyline,svg path,svg polygon{vector-effect:non
 .inside{fill:var(--inside);stroke:var(--ink);stroke-width:1.4}
 .carc{fill:var(--inside);stroke:var(--ink);stroke-width:1.4}
 .niche{fill:var(--niche)}
+.void{fill:var(--void)}
 .edge{fill:var(--board);stroke:var(--boardedge);stroke-width:.8}
 .mach{fill:var(--machine);stroke:var(--muted);stroke-width:1}
 .machpanel{fill:none;stroke:var(--muted);stroke-width:.6}
