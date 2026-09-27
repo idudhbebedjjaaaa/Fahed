@@ -12,9 +12,9 @@ T = 1.8            # board thickness (Egger H309 ST12, 18 mm)
 HDF = 0.8          # back panel / drawer bottom (HDF 8 mm)
 GAP = 0.3          # gap between doors / door reveal
 
-RECESS_W, RECESS_H, RECESS_D = 112.0, 263.0, 60.0
-CAB_W = RECESS_W                     # flush: side panels touch both walls
-CAB_H = 262.0                        # carcass body; 1 cm so the side panels can be stood up under the ceiling
+RECESS_W, RECESS_H, RECESS_D = 113.0, 264.0, 60.0
+CAB_W = 112.0                        # cabinet size given by the owner: 0.5 cm to each wall
+CAB_H = 263.0                        # 1 cm to the ceiling, enough to stand the side panels up
 PANEL_D = 59.2                       # side panels depth
 CAB_D = PANEL_D + HDF                # 60.0 carcass incl. back
 DOOR_PROUD = CAB_D + T               # 61.8 from wall to door face
@@ -35,7 +35,7 @@ X_RS0, X_RS1 = X_N1, X_N1 + T                     # 110.2 .. 112.0
 H_BOTTOM = PLINTH                    # left bottom panel 10 .. 11.8
 H_FIX1 = 81.8                        # fixed shelf above drawers
 H_FIX2 = 180.0                       # fixed shelf / upper cabinet bottom
-H_TOP = CAB_H - T                    # 260.2 top panel
+H_TOP = CAB_H - T                    # 261.2 top panel
 NICHE_H = H_FIX2                     # 180 clear height for machines
 
 # adjustable shelves: equal spacing
@@ -48,7 +48,7 @@ ADJ_C = zoneC0 + spC
 
 # doors
 DOOR_BOT_L = PLINTH
-DOOR_TOP = RECESS_H - GAP                               # 262.7: doors run up to 3 mm under the ceiling
+DOOR_TOP = CAB_H - GAP                                  # 262.7: 3 mm under the top of the cabinet
 DOOR_L_W = 47.0
 DOOR_R_W = 32.1
 DOOR_L_H = DOOR_TOP - DOOR_BOT_L                        # 252.7
@@ -88,12 +88,11 @@ def eq(a, b, msg):
     assert abs(a - b) < 0.051, f"{msg}: {a} != {b}"
 
 eq(X_RS1, CAB_W, "widths add up to cabinet width")
-eq(CAB_W, RECESS_W, "flush wall to wall")
-eq(DOOR_TOP, RECESS_H - 0.3, "doors stop 3 mm under the ceiling")
+eq(RECESS_W - CAB_W, 1.0, "0.5 cm to each wall")
+eq(DOOR_TOP, CAB_H - 0.3, "doors stop 3 mm under the cabinet top")
 assert math.hypot(CAB_H, T) <= RECESS_H - 0.9, "a side panel can be tipped upright under the ceiling"
-assert DOOR_TOP > CAB_H, "doors hide the gap above the carcass"
 eq(CAB_D, RECESS_D, "carcass depth fills recess")
-eq(H_TOP, 260.2, "top panel height")
+eq(H_TOP, 261.2, "top panel height")
 eq(DOOR_L_H, 252.7, "left door height")
 eq(DOOR_R_H, 82.7, "right door height")
 eq(XD_R21, CAB_W - 0.1, "door row ends 1 mm inside cabinet")
@@ -197,14 +196,14 @@ def machines(s, x0, alpha=False):
 
 # ---------------------------------------------------------------- sheet 1
 def sheet_front_closed():
-    s = S(-34, -4, 186, 300, 272)
+    s = S(-42, -4, 196, 300, 272)
     # recess walls hatch
     s.rect(-8, 0, 8, RECESS_H + 6, "wall")
     s.rect(RECESS_W, 0, 8, RECESS_H + 6, "wall")
     s.rect(-8, RECESS_H, RECESS_W + 16, 6, "wall")
     s.rect(0, 0, RECESS_W, RECESS_H, "void")
     s.line(-12, 0, RECESS_W + 12, 0, "floor")
-    ox = 0.0  # flush: the cabinet touches both walls
+    ox = (RECESS_W - CAB_W) / 2  # 0.5 cm to each wall
     def X(v):
         return v + ox
     # carcass silhouette and interior of niche
@@ -244,14 +243,16 @@ def sheet_front_closed():
     s.text(X((XD_R10 + XD_R21) / 2), 225, "بابان", "doortxt")
     s.text(X((XD_R10 + XD_R21) / 2), 219, f"كل باب عرض {f1(DOOR_R_W)} وارتفاع {f1(DOOR_R_H)}", "doortxt num")
     # dimensions
-    s.hdim(0, CAB_W, -9, f"{f1(CAB_W)} سكب من الحيط للحيط", ext_from=0)
+    s.hdim(X(0), X(CAB_W), -9, f"عرض الخزانة {f1(CAB_W)}", ext_from=0)
+    s.hdim(0, RECESS_W, -17, f"الحيط {f1(RECESS_W)}", ext_from=-1)
     s.vdim(-15, 0, DOOR_BOT_L, f"{f1(DOOR_BOT_L)}", ext_from=-8.5)
     s.vdim(-15, DOOR_BOT_L, DOOR_TOP, f"الباب الطويل {f1(DOOR_L_H)}", ext_from=-8.5)
-    s.vdim(-26, 0, RECESS_H, f"{f1(RECESS_H)} سكب من الأرض للسقف", ext_from=-8.5)
+    s.vdim(-25, 0, CAB_H, f"ارتفاع الخزانة {f1(CAB_H)}", ext_from=-8.5)
+    s.vdim(-35, 0, RECESS_H, f"الحيط {f1(RECESS_H)}", ext_from=-8.5)
     xr = RECESS_W + 11
     s.vdim(xr, 0, NICHE_H, f"فتحة الغسالة والنشافة {f1(NICHE_H)}", side=1, ext_from=RECESS_W + 8.5)
     s.vdim(xr, NICHE_H, DOOR_TOP, f"الباب العلوي {f1(DOOR_R_H)}", side=1, ext_from=RECESS_W + 8.5)
-    s.text(xr + 2, RECESS_H + 0.9, "3 مم للسقف", "dt", anchor="left", size=2.6)
+    s.text(xr + 2, RECESS_H + 0.6, f"{f1(RECESS_H - CAB_H)} سم للسقف", "dt", anchor="left", size=2.6)
     s.hdim(X(X_N0), X(X_N1), 176.5, f"{f1(NICHE_IN)} صافي")
     return s.svg("الواجهة والأبواب مغلقة", 540)
 
@@ -311,7 +312,7 @@ def sheet_front_open():
     s.vdim(xR, CAB_H, RECESS_H, "", side=1)
     s.line(CAB_W, RECESS_H, xR + 1.2, RECESS_H, "ext")
     s.vdim(xR + 10, 0, CAB_H, f"جسم الخزانة {f1(CAB_H)}", side=1)
-    s.text(xR + 13, CAB_H - 0.6, "1 سم مخفي ورا الأبواب", "dt", anchor="left", size=2.4)
+    s.text(xR + 13, CAB_H - 0.6, f"{f1(RECESS_H - CAB_H)} سم للسقف", "dt", anchor="left", size=2.4)
     s.rect(-2, RECESS_H, CAB_W + 4, 3, "wall")
     s.text(CAB_W / 2, RECESS_H + 0.7, "السقف", "lbl small")
     # stacked machine heights inside niche
@@ -384,11 +385,12 @@ def sheet_plan():
     def R(x, d, w, h, cls):  # d = depth from wall (downwards)
         s.add(f'<rect x="{x:.2f}" y="{d:.2f}" width="{w:.2f}" height="{h:.2f}" class="{cls}"/>')
     # walls
-    s.add(f'<rect x="-8" y="-8" width="{RECESS_W + 16}" height="8" class="wall"/>')
-    s.add(f'<rect x="-8" y="0" width="8" height="{RECESS_D}" class="wall"/>')
-    s.add(f'<rect x="{RECESS_W}" y="0" width="8" height="{RECESS_D}" class="wall"/>')
-    s.add(f'<line x1="-18" y1="{RECESS_D}" x2="0" y2="{RECESS_D}" class="wallface"/>')
-    s.add(f'<line x1="{RECESS_W}" y1="{RECESS_D}" x2="{RECESS_W + 18}" y2="{RECESS_D}" class="wallface"/>')
+    wl, wr = -(RECESS_W - CAB_W) / 2, CAB_W + (RECESS_W - CAB_W) / 2   # wall faces, 0.5 cm away
+    s.add(f'<rect x="{wl - 8:.2f}" y="-8" width="{RECESS_W + 16}" height="8" class="wall"/>')
+    s.add(f'<rect x="{wl - 8:.2f}" y="0" width="8" height="{RECESS_D}" class="wall"/>')
+    s.add(f'<rect x="{wr:.2f}" y="0" width="8" height="{RECESS_D}" class="wall"/>')
+    s.add(f'<line x1="-18" y1="{RECESS_D}" x2="{wl:.2f}" y2="{RECESS_D}" class="wallface"/>')
+    s.add(f'<line x1="{wr:.2f}" y1="{RECESS_D}" x2="{RECESS_W + 18}" y2="{RECESS_D}" class="wallface"/>')
     # carcass
     R(0, 0, CAB_W, HDF, "back")
     R(X_LS, 0, T, CAB_D, "board")
@@ -431,9 +433,9 @@ def sheet_plan():
     for a in (0, CAB_W):
         s.add(f'<line x1="{a - 0.9:.2f}" y1="{yb2 + 0.9:.2f}" x2="{a + 0.9:.2f}" y2="{yb2 - 0.9:.2f}" class="dim tick"/>')
         s.add(f'<line x1="{a:.2f}" y1="{RECESS_D:.2f}" x2="{a:.2f}" y2="{yb2 + 1.2:.2f}" class="ext"/>')
-    s.add(f'<text x="{CAB_W / 2:.2f}" y="{yb2 - 1:.2f}" class="dt" text-anchor="middle">{f1(CAB_W)} سكب من الحيط للحيط</text>')
-    s.add(f'<text x="{RECESS_W / 2:.2f}" y="-10.5" class="lbl small" text-anchor="middle">الحائط الخلفي</text>')
-    s.add(f'<text x="{RECESS_W / 2:.2f}" y="{yb2 + 8:.2f}" class="lbl small" text-anchor="middle">جهة الغرفة</text>')
+    s.add(f'<text x="{CAB_W / 2:.2f}" y="{yb2 - 1:.2f}" class="dt" text-anchor="middle">عرض الخزانة {f1(CAB_W)}، والحيط {f1(RECESS_W)}</text>')
+    s.add(f'<text x="{CAB_W / 2:.2f}" y="-10.5" class="lbl small" text-anchor="middle">الحائط الخلفي</text>')
+    s.add(f'<text x="{CAB_W / 2:.2f}" y="{yb2 + 8:.2f}" class="lbl small" text-anchor="middle">جهة الغرفة</text>')
     s.add(f'<text x="{XD_L0 + 22.5:.2f}" y="{DOOR_PROUD + 30:.2f}" class="lbl small" text-anchor="middle">فتح الباب الطويل</text>')
     return s.svg("المسقط من فوق", 520)
 
@@ -526,11 +528,11 @@ def page():
   <div class="tb-name">
     <p class="eyebrow">مخطط تنفيذ للنجار</p>
     <h1>خزانة الغسيل</h1>
-    <p class="lede">عمود طويل بباب واحد فيه درجين عميقين ورفوف، وبجانبه فتحة للغسالة والنشافة فوق بعض، وفوقهما خزانة ببابين ورف. الخزانة سكب من الحيط للحيط ومن الأرض للسقف.</p>
+    <p class="lede">عمود طويل بباب واحد فيه درجين عميقين ورفوف، وبجانبه فتحة للغسالة والنشافة فوق بعض، وفوقهما خزانة ببابين ورف. الخزانة عرضها {f1(CAB_W)} وارتفاعها {f1(CAB_H)} بفتحة حيط {f1(RECESS_W)} × {f1(RECESS_H)}.</p>
   </div>
   <dl class="tb-cells">
     <div><dt>فتحة الحائط</dt><dd class="num">عرض {f1(RECESS_W)}، ارتفاع {f1(RECESS_H)}، عمق {f1(RECESS_D)}</dd></div>
-    <div><dt>مقاس الخزانة</dt><dd class="num">عرض {f1(CAB_W)}، ارتفاع {f1(RECESS_H)}، عمق {f1(CAB_D)}<br><span class="sub">سكب على الحيطان والسقف بدون فراغ</span></dd></div>
+    <div><dt>مقاس الخزانة</dt><dd class="num">عرض {f1(CAB_W)}، ارتفاع {f1(CAB_H)}، عمق {f1(CAB_D)}<br><span class="sub">نص سانتي لكل حيط، وسانتي للسقف</span></dd></div>
     <div><dt>الخشب</dt><dd><bdi dir="ltr">Egger H309 ST12</bdi><br><span class="sub"><bdi dir="ltr">Brown Tonsberg Oak</bdi>، سماكة 18 مم</span></dd></div>
     <div><dt>الوحدة</dt><dd>كل المقاسات بالسنتيمتر</dd></div>
   </dl>
@@ -546,7 +548,7 @@ def page():
 <section class="sheet check">
   <div class="sheet-head"><span class="sheet-no">قبل التنفيذ</span><h2>أشياء لازم تتأكد منها</h2></div>
   <ul>
-    <li><b>قيس الفتحة بثلاث أماكن</b> للعرض (تحت، نص، فوق) وللارتفاع (يمين، نص، يسار)، واعتمد أصغر رقم، لأنه الخزانة سكب. المخطط مبني على عرض 112 وارتفاع 263 وعمق 60. أي فرق بالعرض بيتعدّل على عرض العمود اليسار بس، وفتحة الغسالة بتضل {f1(NICHE_IN)}. وطول الأبواب بيطلع من أوطى نقطة بالسقف ناقص 3 مم.</li>
+    <li><b>قيس الفتحة بثلاث أماكن</b> للعرض (تحت، نص، فوق) وللارتفاع (يمين، نص، يسار)، واعتمد أصغر رقم. المخطط مبني على حيط عرضه {f1(RECESS_W)} وارتفاعه {f1(RECESS_H)} وعمقه {f1(RECESS_D)}، وخزانة {f1(CAB_W)} × {f1(CAB_H)}. إذا طلع الحيط أضيق بأي نقطة، الفرق بيتعدّل على عرض العمود اليسار بس، وفتحة الغسالة بتضل {f1(NICHE_IN)}.</li>
     <li><b>مقاس الغسالة والنشافة الحقيقي.</b> المخطط مبني على المقاس القياسي عرض 60 وارتفاع 85. إذا واحد منهم أعرض من 60 أو أطول من 87، لازم نعدّل الفتحة. وشوف كتالوج تركيب الغسالة: إذا طالب مسافة من الجوانب أكتر من {f1(SIDE_CLR)} سم، لازم نلتزم فيها.</li>
     <li><b>النشافة</b> الأفضل تكون نوع مكثف أو مضخة حرارية لأنها ما بتحتاج فتحة تهوية للخارج. إذا كانت نوع تهوية، لازم فتحة بالحائط قطر 10 سم.</li>
     <li><b>الكهربا والمي.</b> خلي الفيش وحنفية المي والصرف على الحائط الخلفي بمكان ما يكون ورا جسم الغسالة مباشرة، وتأكد مع الكهربجي والسمكري قبل ما يبدأ النجار.</li>
@@ -556,7 +558,7 @@ def page():
 <section class="sheet brk">
   <div class="sheet-head"><span class="sheet-no">لوحة 1</span><h2>الواجهة والأبواب مسكّرة</h2></div>
   <div class="figwrap">{sheet_front_closed()}</div>
-  <p class="cap">الخزانة سكب: الجنبين لازقين بالحيطان، والأبواب بتوصل لقبل السقف بـ 3 مم بس. المثلث المنقّط على كل باب رأسه عند جهة المفصلات. النقاط الصغيرة أماكن المفصلات. الباب الطويل يفتح لجهة الحائط اليسار، والبابان العلويان يفتحان من النص للطرفين.</p>
+  <p class="cap">الخزانة عرضها {f1(CAB_W)} وارتفاعها {f1(CAB_H)}، ومنها للحيط نص سانتي من كل جهة وسانتي للسقف. المثلث المنقّط على كل باب رأسه عند جهة المفصلات. النقاط الصغيرة أماكن المفصلات. الباب الطويل يفتح لجهة الحائط اليسار، والبابان العلويان يفتحان من النص للطرفين.</p>
 </section>
 
 <section class="sheet">
@@ -644,8 +646,8 @@ def page():
 <section class="sheet notes">
   <div class="sheet-head"><span class="sheet-no">ملاحظات</span><h2>ملاحظات للنجار</h2></div>
   <ul>
-    <li><b>التجميع بالمكان قطعة قطعة.</b> الخزانة سكب على الفتحة، فما بتفوت إذا انعملت صندوق جاهز. أول شي الجنبين على الحيطان، وبعدين القاطع والألواح الأفقية مقصوصة على القياس الحقيقي بين الجنبين. جسم الخزانة 262 وليس 263، لأنه لوح بطول 263 ما بيوقف تحت سقف 263.</li>
-    <li><b>بدون فراغ مع الحيطان.</b> الجنبين بيلزقوا بالحيطان مباشرة. إذا الحيط مش دغري، النجار بيقص حرف الجنب على شكل الحيط حتى ما يبين أي خط. من فوق، الأبواب بتطلع لـ {f1(DOOR_TOP)} وبتغطي السانتي اللي فوق الجسم، فما بيبين أي فراغ.</li>
+    <li><b>التجميع بالمكان قطعة قطعة.</b> صندوق كامل ارتفاعه {f1(CAB_H)} وعمقه 60 ما بيوقف تحت سقف {f1(RECESS_H)}. الجنبين بيوقفوا لحالهم، وبعدين بيتركب القاطع والألواح الأفقية بينهم.</li>
+    <li><b>الفراغ مع الحيطان.</b> نص سانتي من كل جهة وسانتي من فوق. بيتسكّر بسيليكون بلون الخشب أو بشريط رفيع من نفس الخشب.</li>
     <li><b>الأبواب لقدّام عن الحائط.</b> وجه الجسم على نفس خط وجه الحيط، والأبواب بتطلع 1.8 سم لقدّام. هيك الباب بينفتح بدون ما يحتك بالحيط اللي جنبه. إذا دخلت الأبواب جوّا الفتحة، بتحتك بالحيط وما بتنفتح.</li>
     <li><b>فتحة الأجهزة بدون أرضية وبدون ظهر.</b> الغسالة توقف على البلاط مباشرة، والجنب اليمين والقاطع يتثبتوا منيح لأنه ما في شي يربطهم من تحت.</li>
     <li><b>مسافة {f1(SIDE_CLR)} سم من كل جهة للغسالة والنشافة.</b> هاي أقل مسافة آمنة، فلازم تكون الفتحة {f1(NICHE_IN)} بالضبط من تحت ومن النص ومن فوق، والقاطع موازي للجنب اليمين. والغسالة لازم تنزبط بالميزان منيح حتى ما تدق بالخشب وقت العصر.</li>
