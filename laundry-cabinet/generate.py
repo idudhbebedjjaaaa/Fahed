@@ -19,16 +19,16 @@ PANEL_D = 59.2                       # side panels depth
 CAB_D = PANEL_D + HDF                # 60.0 carcass incl. back
 DOOR_PROUD = CAB_D + T               # 61.8 from wall to door face
 
-LEFT_IN = 42.6                       # left column clear width
-NICHE_IN = 64.0                      # machine niche clear width
+LEFT_IN = 44.6                       # left column clear width
+NICHE_IN = 62.0                      # machine niche clear width: 1 cm each side of a 60 cm machine
 PLINTH = 10.0
 PLINTH_SETBACK = 5.0
 
 # x positions (from left outer face)
 X_LS = 0.0
-X_LC0, X_LC1 = T, T + LEFT_IN                     # 1.8 .. 44.4
-X_DIV0, X_DIV1 = X_LC1, X_LC1 + T                 # 44.4 .. 46.2
-X_N0, X_N1 = X_DIV1, X_DIV1 + NICHE_IN            # 46.2 .. 110.2
+X_LC0, X_LC1 = T, T + LEFT_IN                     # 1.8 .. 46.4
+X_DIV0, X_DIV1 = X_LC1, X_LC1 + T                 # 46.4 .. 48.2
+X_N0, X_N1 = X_DIV1, X_DIV1 + NICHE_IN            # 48.2 .. 110.2
 X_RS0, X_RS1 = X_N1, X_N1 + T                     # 110.2 .. 112.0
 
 # heights (bottom face of each board, from floor)
@@ -49,22 +49,22 @@ ADJ_C = zoneC0 + spC
 # doors
 DOOR_BOT_L = PLINTH
 DOOR_TOP = RECESS_H - GAP                               # 262.7: doors run up to 3 mm under the ceiling
-DOOR_L_W = 45.0
-DOOR_R_W = 33.1
+DOOR_L_W = 47.0
+DOOR_R_W = 32.1
 DOOR_L_H = DOOR_TOP - DOOR_BOT_L                        # 252.7
 DOOR_R_H = DOOR_TOP - H_FIX2                            # 82.7
-XD_L0 = 0.1; XD_L1 = XD_L0 + DOOR_L_W                   # 0.1 .. 45.1
-XD_R10 = XD_L1 + GAP; XD_R11 = XD_R10 + DOOR_R_W        # 45.4 .. 78.5
-XD_R20 = XD_R11 + GAP; XD_R21 = XD_R20 + DOOR_R_W       # 78.8 .. 111.9
+XD_L0 = 0.1; XD_L1 = XD_L0 + DOOR_L_W                   # 0.1 .. 47.1
+XD_R10 = XD_L1 + GAP; XD_R11 = XD_R10 + DOOR_R_W        # 47.4 .. 79.5
+XD_R20 = XD_R11 + GAP; XD_R21 = XD_R20 + DOOR_R_W       # 79.8 .. 111.9
 
 # drawers
 SPACER = T + HDF                                        # 2.6
-DR_CLEAR = LEFT_IN - SPACER                             # 40.0
+DR_CLEAR = LEFT_IN - SPACER                             # 42.0
 SLIDE = 1.3
-BOX_W = round(DR_CLEAR - 2 * SLIDE, 1)                  # 37.4
+BOX_W = round(DR_CLEAR - 2 * SLIDE, 1)                  # 39.4
 BOX_D = 50.0
 BOX_H = 30.0
-FRONT_W = round(DR_CLEAR - 0.4, 1)                      # 39.6
+FRONT_W = round(DR_CLEAR - 0.4, 1)                      # 41.6
 FRONT_H = 34.5
 FRONT_SETBACK = 2.5
 F1 = (H_BOTTOM + T + GAP, H_BOTTOM + T + GAP + FRONT_H)  # 12.1 .. 46.6
@@ -80,6 +80,8 @@ HINGE_R = [10.0, round(DOOR_R_H - 10, 1)]
 # machines (standard European front loaders)
 M_W, M_H, M_D = 60.0, 85.0, 60.0
 KIT = 2.0
+SIDE_CLR = (NICHE_IN - M_W) / 2                         # 1.0 cm each side
+MX = X_N0 + SIDE_CLR                                    # machine left edge, centred in the niche
 
 # ------------------------------------------------------------ assertions
 def eq(a, b, msg):
@@ -102,7 +104,7 @@ eq(ADJ_C + T + spC, zoneC1, "zone C spacing closes")
 assert F2[1] + GAP <= H_FIX1 + 0.001, "upper drawer front under fixed shelf"
 assert BOX2[1] < H_FIX1 - 3, "upper box has lift clearance"
 assert FRONT_SETBACK + T + BOX_D < PANEL_D, "drawer fits in depth"
-assert NICHE_IN - M_W >= 4, "2 cm each side of machines"
+assert SIDE_CLR >= 1.0, "at least 1 cm each side of the machines"
 assert 2 * M_H + KIT + 5 <= NICHE_H, "5 cm above stacked machines"
 for hh in HINGE_L:  # no hinge plate (±3 cm) on a fixed board
     a = DOOR_BOT_L + hh
@@ -208,7 +210,7 @@ def sheet_front_closed():
     # carcass silhouette and interior of niche
     s.rect(X(0), 0, CAB_W, CAB_H, "carc")
     s.rect(X(X_N0), 0, NICHE_IN, NICHE_H, "niche")
-    machines(s, X(X_N0 + 2))
+    machines(s, X(MX))
     s.rect(X(X_DIV0), 0, T, NICHE_H, "edge")
     s.rect(X(X_RS0), 0, T, NICHE_H, "edge")
     s.rect(X(X_LC0), 0, LEFT_IN, PLINTH, "plinthshadow")
@@ -259,7 +261,7 @@ def sheet_front_open():
     s.line(-12, 0, CAB_W + 12, 0, "floor")
     s.rect(0, 0, CAB_W, CAB_H, "inside")
     s.rect(X_N0, 0, NICHE_IN, NICHE_H, "niche")
-    machines(s, X_N0 + 2)
+    machines(s, MX)
     carcass(s)
     s.rect(X_LC0, 0, LEFT_IN, PLINTH, "plinth")
     # spacer & drawers
@@ -394,10 +396,10 @@ def sheet_plan():
     R(X_RS0, 0, T, CAB_D, "board")
     R(X_LC0, HDF, LEFT_IN, PANEL_D, "insideplan")
     # machine footprint
-    R(X_N0 + 2, 6, M_W, M_D, "machplan")
-    s.add(f'<text x="{X_N0 + 2 + M_W / 2:.2f}" y="{6 + M_D / 2 + 1:.2f}" class="lbl" text-anchor="middle">غسالة / نشافة</text>')
-    s.add(f'<text x="{X_N0 + 2 + M_W / 2:.2f}" y="{6 + M_D / 2 + 6:.2f}" class="lbl small" text-anchor="middle">60 × 60 تقريباً</text>')
-    s.add(f'<text x="{X_N0 + 2 + M_W / 2:.2f}" y="4.4" class="lbl small" text-anchor="middle">مسافة الخراطيم</text>')
+    R(MX, 6, M_W, M_D, "machplan")
+    s.add(f'<text x="{MX + M_W / 2:.2f}" y="{6 + M_D / 2 + 1:.2f}" class="lbl" text-anchor="middle">غسالة / نشافة</text>')
+    s.add(f'<text x="{MX + M_W / 2:.2f}" y="{6 + M_D / 2 + 6:.2f}" class="lbl small" text-anchor="middle">60 × 60 تقريباً</text>')
+    s.add(f'<text x="{MX + M_W / 2:.2f}" y="4.4" class="lbl small" text-anchor="middle">مسافة الخراطيم</text>')
     # doors (closed) + swing arcs
     def door(x0, x1, hinge_left, dashed=False):
         R(x0, CAB_D, x1 - x0, T, "doorplan")
@@ -544,8 +546,8 @@ def page():
 <section class="sheet check">
   <div class="sheet-head"><span class="sheet-no">قبل التنفيذ</span><h2>أشياء لازم تتأكد منها</h2></div>
   <ul>
-    <li><b>قيس الفتحة بثلاث أماكن</b> للعرض (تحت، نص، فوق) وللارتفاع (يمين، نص، يسار)، واعتمد أصغر رقم، لأنه الخزانة سكب. المخطط مبني على عرض 112 وارتفاع 263 وعمق 60. أي فرق بالعرض بيتعدّل على عرض العمود اليسار بس، وفتحة الغسالة بتضل 64. وطول الأبواب بيطلع من أوطى نقطة بالسقف ناقص 3 مم.</li>
-    <li><b>مقاس الغسالة والنشافة الحقيقي.</b> المخطط مبني على المقاس القياسي عرض 60 وارتفاع 85. إذا واحد منهم أطول من 87 سم، لازم نرفع الخزانة العلوية.</li>
+    <li><b>قيس الفتحة بثلاث أماكن</b> للعرض (تحت، نص، فوق) وللارتفاع (يمين، نص، يسار)، واعتمد أصغر رقم، لأنه الخزانة سكب. المخطط مبني على عرض 112 وارتفاع 263 وعمق 60. أي فرق بالعرض بيتعدّل على عرض العمود اليسار بس، وفتحة الغسالة بتضل {f1(NICHE_IN)}. وطول الأبواب بيطلع من أوطى نقطة بالسقف ناقص 3 مم.</li>
+    <li><b>مقاس الغسالة والنشافة الحقيقي.</b> المخطط مبني على المقاس القياسي عرض 60 وارتفاع 85. إذا واحد منهم أعرض من 60 أو أطول من 87، لازم نعدّل الفتحة. وشوف كتالوج تركيب الغسالة: إذا طالب مسافة من الجوانب أكتر من {f1(SIDE_CLR)} سم، لازم نلتزم فيها.</li>
     <li><b>النشافة</b> الأفضل تكون نوع مكثف أو مضخة حرارية لأنها ما بتحتاج فتحة تهوية للخارج. إذا كانت نوع تهوية، لازم فتحة بالحائط قطر 10 سم.</li>
     <li><b>الكهربا والمي.</b> خلي الفيش وحنفية المي والصرف على الحائط الخلفي بمكان ما يكون ورا جسم الغسالة مباشرة، وتأكد مع الكهربجي والسمكري قبل ما يبدأ النجار.</li>
   </ul>
@@ -646,7 +648,7 @@ def page():
     <li><b>بدون فراغ مع الحيطان.</b> الجنبين بيلزقوا بالحيطان مباشرة. إذا الحيط مش دغري، النجار بيقص حرف الجنب على شكل الحيط حتى ما يبين أي خط. من فوق، الأبواب بتطلع لـ {f1(DOOR_TOP)} وبتغطي السانتي اللي فوق الجسم، فما بيبين أي فراغ.</li>
     <li><b>الأبواب لقدّام عن الحائط.</b> وجه الجسم على نفس خط وجه الحيط، والأبواب بتطلع 1.8 سم لقدّام. هيك الباب بينفتح بدون ما يحتك بالحيط اللي جنبه. إذا دخلت الأبواب جوّا الفتحة، بتحتك بالحيط وما بتنفتح.</li>
     <li><b>فتحة الأجهزة بدون أرضية وبدون ظهر.</b> الغسالة توقف على البلاط مباشرة، والجنب اليمين والقاطع يتثبتوا منيح لأنه ما في شي يربطهم من تحت.</li>
-    <li><b>مسافة 2 سم من كل جهة للغسالة</b> حتى ما تنقل الرجة للخشب.</li>
+    <li><b>مسافة {f1(SIDE_CLR)} سم من كل جهة للغسالة والنشافة.</b> هاي أقل مسافة آمنة، فلازم تكون الفتحة {f1(NICHE_IN)} بالضبط من تحت ومن النص ومن فوق، والقاطع موازي للجنب اليمين. والغسالة لازم تنزبط بالميزان منيح حتى ما تدق بالخشب وقت العصر.</li>
     <li><b>الرطوبة.</b> يفضّل طلب اللوح بنسخة مقاومة للرطوبة (MR) إذا متوفرة بنفس اللون، وكنار ABS 2 مم على كل الحروف الظاهرة، وسيليكون شفاف تحت الجوانب عند البلاط.</li>
     <li><b>عروق الخشب</b> عمودية على كل الأبواب والجوانب والواجهات حتى يطلع الشكل متناسق مثل العينة.</li>
   </ul>
